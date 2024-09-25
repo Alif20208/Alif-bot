@@ -1,4 +1,4 @@
-/* eslint-disable no-prototype-builtins */
+ /* eslint-disable no-prototype-builtins */
 "use strict";
 
 let request = require("request").defaults({ jar: true });
@@ -8,10 +8,10 @@ const querystring = require("querystring");
 const url = require("url");
 
 function setProxy(proxy) {
-	if (typeof proxy == 'string')
-		request = require("request").defaults({ jar: true, proxy });
-	else request = request;
-	return;
+  if (typeof proxy == 'string')
+    request = require("request").defaults({ jar: true, proxy });
+  else request = request;
+  return;
 }
 
 function getHeaders(url, options, ctx, customHeader) {
@@ -27,10 +27,10 @@ function getHeaders(url, options, ctx, customHeader) {
 	if (customHeader) {
 		Object.assign(headers, customHeader);
 	}
-	if (customHeader && customHeader.noRef) 
-		delete headers.Referer;
+  if (customHeader && customHeader.noRef) 
+    delete headers.Referer;
 	if (ctx && ctx.region) 
-		headers["X-MSGR-Region"] = ctx.region;
+    headers["X-MSGR-Region"] = ctx.region;
 
 	return headers;
 }
@@ -63,19 +63,19 @@ function get(url, jar, qs, options, ctx, customHeader) {
 		gzip: true
 	};
 
-	var callback;
-	var returnPromise = new Promise(function (resolve, reject) {
-		callback = (error, data) => error != null ? reject(error) : resolve(data);
-	});
-	request(op, callback);
+  var callback;
+  var returnPromise = new Promise(function (resolve, reject) {
+    callback = (error, data) => error != null ? reject(error) : resolve(data);
+  });
+  request(op, callback);
 
 	return returnPromise;
 }
 
 function post(url, jar, form, options, ctx, customHeader) {
 	var op = {
-		headers: getHeaders(url, options, ctx, customHeader),
-		timeout: 60000,
+    headers: getHeaders(url, options, ctx, customHeader),
+    timeout: 60000,
 		url: url,
 		method: "POST",
 		form: form,
@@ -84,10 +84,10 @@ function post(url, jar, form, options, ctx, customHeader) {
 	}
 
 	var callback;
-	var returnPromise = new Promise(function (resolve, reject) {
-		callback = (error, data) => error != null ? reject(error) : resolve(data);
-	});
-	request(op, callback);
+  var returnPromise = new Promise(function (resolve, reject) {
+    callback = (error, data) => error != null ? reject(error) : resolve(data);
+  });
+  request(op, callback);
 
 	return returnPromise;
 }
@@ -107,10 +107,10 @@ function postFormData(url, jar, form, qs, options, ctx) {
 	};
 
 	var callback;
-	var returnPromise = new Promise(function (resolve, reject) {
-		callback = (error, data) => error != null ? reject(error) : resolve(data);
-	});
-	request(op, callback);
+  var returnPromise = new Promise(function (resolve, reject) {
+    callback = (error, data) => error != null ? reject(error) : resolve(data);
+  });
+  request(op, callback);
 
 	return returnPromise;
 }
@@ -762,7 +762,7 @@ function formatDeltaMessage(m) {
 		mentions: mentions,
 		timestamp: md.timestamp,
 		isGroup: !!md.threadKey.threadFbId,
-		participantIDs: m.delta.participants
+    participantIDs: m.delta.participants
 	};
 }
 
@@ -858,10 +858,10 @@ function formatHistoryMessage(m) {
 // Get a more readable message type for AdminTextMessages
 function getAdminTextMessageType(type) {
 	switch (type) {
-		case 'unpin_messages_v2':
-			return 'log:unpin-message';
-		case 'pin_messages_v2':
-			return 'log:pin-message';
+    case 'unpin_messages_v2':
+      return 'log:unpin-message';
+    case 'pin_messages_v2':
+      return 'log:pin-message';
 		case "change_thread_theme":
 			return "log:thread-color";
 		case "change_thread_icon":
@@ -936,7 +936,7 @@ function formatDeltaEvent(m) {
 		logMessageBody: m.messageMetadata.adminText,
 		timestamp: m.messageMetadata.timestamp,
 		author: m.messageMetadata.actorFbId,
-		participantIDs: m.participants
+    participantIDs: m.participants
 	};
 }
 
@@ -1087,7 +1087,7 @@ function makeDefaults(html, userID, ctx) {
 		//
 		//              Ben - July 15th 2017
 		const newObj = {
-			av: userID,
+      av: userID,
 			__user: userID,
 			__req: (reqCounter++).toString(36),
 			__rev: revision,
@@ -1149,55 +1149,55 @@ function makeDefaults(html, userID, ctx) {
 }
 
 function parseAndCheckLogin(ctx, http, retryCount) {
-	var delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-	var _try = (tryData) => new Promise(function (resolve, reject) {
-		try {
-			resolve(tryData());
-		} catch (error) {
-			reject(error);
-		}
-	});
-	if (retryCount == undefined) retryCount = 0;
-
+  var delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  var _try = (tryData) => new Promise(function (resolve, reject) {
+    try {
+      resolve(tryData());
+    } catch (error) {
+      reject(error);
+    }
+  });
+  if (retryCount == undefined) retryCount = 0;
+  
 	return function (data) {
-		function any() {
-			log.verbose("parseAndCheckLogin", data.body);
-			if (data.statusCode >= 500 && data.statusCode < 600) {
-				if (retryCount >= 5) {
-					const err = new Error("Request retry failed. Check the `res` and `statusCode` property on this error.");
+    function any() {
+      log.verbose("parseAndCheckLogin", data.body);
+      if (data.statusCode >= 500 && data.statusCode < 600) {
+        if (retryCount >= 5) {
+          const err = new Error("Request retry failed. Check the `res` and `statusCode` property on this error.");
 					err.statusCode = data.statusCode;
 					err.res = data.body;
 					err.error = "Request retry failed. Check the `res` and `statusCode` property on this error.";
 					throw err;
-				}
-				retryCount++;
-				const retryTime = Math.floor(Math.random() * 5000);
-				log.warn("parseAndCheckLogin", "Got status code " + data.statusCode + " - " + retryCount + ". attempt to retry in " + retryTime + " milliseconds...");
+        }
+        retryCount++;
+        const retryTime = Math.floor(Math.random() * 5000);
+        log.warn("parseAndCheckLogin", "Got status code " + data.statusCode + " - " + retryCount + ". attempt to retry in " + retryTime + " milliseconds...");
 				const url = data.request.uri.protocol + "//" + data.request.uri.hostname + data.request.uri.pathname;
-				if (data.request.headers["Content-Type"].split(";")[0] === "multipart/form-data") {
+        if (data.request.headers["Content-Type"].split(";")[0] === "multipart/form-data") {
 					return delay(retryTime)
-						.then(function () {
-							return http
-								.postFormData(url, ctx.jar, data.request.formData);
-						})
-						.then(parseAndCheckLogin(ctx, http, retryCount));
-				}
-				else {
-					return delay(retryTime)
-						.then(function () {
-							return http
-								.post(url, ctx.jar, data.request.formData);
-						})
-						.then(parseAndCheckLogin(ctx, http, retryCount));
-				}
-			}
-			if (data.statusCode !== 200)
+            .then(function () {
+              return http
+                .postFormData(url, ctx.jar, data.request.formData);
+            })
+            .then(parseAndCheckLogin(ctx, http, retryCount));
+        }
+        else {
+          return delay(retryTime)
+            .then(function () {
+              return http
+                .post(url, ctx.jar, data.request.formData);
+            })
+            .then(parseAndCheckLogin(ctx, http, retryCount));
+        }
+      }
+      if (data.statusCode !== 200)
 				throw new Error("parseAndCheckLogin got status code: " + data.statusCode + ". Bailing out of trying to parse response.");
-
-			let res = null;
+      
+      let res = null;
 			try {
 				res = JSON.parse(makeParsable(data.body));
-			} catch (e) {
+      } catch (e) {
 				const err = new Error("JSON.parse error. Check the `detail` property on this error.");
 				err.error = "JSON.parse error. Check the `detail` property on this error.";
 				err.detail = e;
@@ -1210,16 +1210,16 @@ function parseAndCheckLogin(ctx, http, retryCount) {
 				return http
 					.get(res.redirect, ctx.jar)
 					.then(parseAndCheckLogin(ctx, http));
-			}
+      }
 
 			// TODO: handle multiple cookies?
 			if (res.jsmods && res.jsmods.require && Array.isArray(res.jsmods.require[0]) && res.jsmods.require[0][0] === "Cookie") {
-				res.jsmods.require[0][3][0] = res.jsmods.require[0][3][0].replace("_js_", "");
-				const cookie = formatCookie(res.jsmods.require[0][3], "facebook");
+        res.jsmods.require[0][3][0] = res.jsmods.require[0][3][0].replace("_js_", "");
+        const cookie = formatCookie(res.jsmods.require[0][3], "facebook");
 				const cookie2 = formatCookie(res.jsmods.require[0][3], "messenger");
 				ctx.jar.setCookie(cookie, "https://www.facebook.com");
 				ctx.jar.setCookie(cookie2, "https://www.messenger.com");
-			}
+      }
 
 			// On every request we check if we got a DTSG and we mutate the context so that we use the latest
 			// one for the next requests.
@@ -1241,7 +1241,9 @@ function parseAndCheckLogin(ctx, http, retryCount) {
 			if (res.error === 1357001) {
 				const err = new Error('Facebook blocked login. Please visit https://facebook.com and check your account.');
 				err.error = "Not logged in.";
+				
 				throw err;
+				process.exit(1)
 			}
 			return res;
 		}
@@ -1384,20 +1386,20 @@ function getAppState(jar) {
 }
 
 function createAccess_token(jar, globalOptions) {
-	return function (res) {
-		return get('https://business.facebook.com/business_locations', jar, null, globalOptions)
-			.then(function (resp) {
-				var accessToken = /"],\["(\S+)","436761779744620",{/g.exec(resp.body);
-				if (accessToken) accessToken = accessToken[1].split('"],["').pop();
-				else accessToken = 'NONE';
-				return [(res || resp.body), accessToken];
-			})
-			.catch(() => {
-				return [(res || null), 'NONE'];
-			})
-	}
+  return function (res) {
+    return get('https://business.facebook.com/business_locations', jar, null, globalOptions)
+      .then(function (resp) {
+        var accessToken = /"],\["(\S+)","436761779744620",{/g.exec(resp.body);
+        if (accessToken) accessToken = accessToken[1].split('"],["').pop();
+        else accessToken = 'NONE';
+        return [(res || resp.body), accessToken];
+      })
+      .catch(() => {
+				
+        return [(res || null), 'NONE'];
+      })
+  }
 }
-
 module.exports = {
 	isReadableStream,
 	get,
@@ -1437,5 +1439,5 @@ module.exports = {
 	getAppState,
 	getAdminTextMessageType,
 	setProxy,
-	createAccess_token
+  createAccess_token
 }
